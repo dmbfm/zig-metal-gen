@@ -22,10 +22,22 @@ pub const Enum = struct {
         };
     }
 
+    pub fn hasValue(self: *Enum, value: u64) bool {
+        for (self.values.items) |v| {
+            if (v.value == value) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     pub fn addValue(self: *Enum, val: Value) void {
-        self.values.append(val) catch {
-            std.debug.panic("Failed to add enum value!", .{});
-        };
+        if (!self.hasValue(val.value)) {
+            self.values.append(val) catch {
+                std.debug.panic("Failed to add enum value!", .{});
+            };
+        }
     }
 
     pub fn print(self: *Enum, level: usize, writer: anytype) !void {
