@@ -167,6 +167,24 @@ pub const Generator = struct {
                             try w.writeAll(" * ");
                         }
                     },
+                    .primitive => |primitive| {
+                        switch (primitive.kind) {
+                            .Void => {
+                                if (pointer.nullability == Type.Pointer.Nullability.nullable) {
+                                    try w.writeAll(" ?");
+                                }
+                                if (primitive.is_const) {
+                                    try w.writeAll("* const anyopaque ");
+                                } else {
+                                    try w.writeAll("* anyopaque ");
+                                }
+                                return;
+                            },
+                            else => {
+                                try w.writeAll(" [*c] ");
+                            },
+                        }
+                    },
                     else => {
                         try w.writeAll(" [*c] ");
                     },
