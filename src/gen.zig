@@ -86,9 +86,17 @@ pub const Generator = struct {
     pub fn writeMethodZigFunctionName(m: Container.Method, w: anytype) !void {
         var name: []const u8 = if (method_rename_map.get(sliceFromCString(m.name))) |str| str else sliceFromCString(m.name);
 
+        var nextIsUpperCase = false;
         for (name) |ch| {
             if (ch != ':') {
-                try w.writeByte(ch);
+                if (nextIsUpperCase) {
+                    nextIsUpperCase = false;
+                    try w.writeByte(std.ascii.toUpper(ch));
+                } else {
+                    try w.writeByte(ch);
+                }
+            } else {
+                nextIsUpperCase = true;
             }
         }
     }
