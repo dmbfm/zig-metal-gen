@@ -2616,7 +2616,7 @@ var sel_setBuffer_offset_atIndex_ = CachedSelector.init("setBuffer:offset:atInde
            return @as(*const fn(*Self, SEL,  ?* MTLBuffer, c_ulong, c_ulong, ) callconv(.C) void, @ptrCast(&objc_msgSend))(@ptrCast(self), sel_setBuffer_offset_atIndex_.get(), __buffer, __offset, __index, );
  }}
 var sel_setBufferOffset_atIndex_ = CachedSelector.init("setBufferOffset:atIndex:");
-      pub fn setBufferOffsetAtIndex(self: *Self, __offset: c_ulong, __index: c_ulong, ) void {{
+      pub fn setOffsetOfBufferAtIndex(self: *Self, __offset: c_ulong, __index: c_ulong, ) void {{
            return @as(*const fn(*Self, SEL, c_ulong, c_ulong, ) callconv(.C) void, @ptrCast(&objc_msgSend))(@ptrCast(self), sel_setBufferOffset_atIndex_.get(), __offset, __index, );
  }}
 var sel_setBuffers_offsets_withRange_ = CachedSelector.init("setBuffers:offsets:withRange:");
@@ -2632,7 +2632,7 @@ var sel_setBuffers_offsets_attributeStrides_withRange_ = CachedSelector.init("se
            return @as(*const fn(*Self, SEL, [*c] ?* MTLBuffer, [*c]c_ulong, [*c]c_ulong, _NSRange, ) callconv(.C) void, @ptrCast(&objc_msgSend))(@ptrCast(self), sel_setBuffers_offsets_attributeStrides_withRange_.get(), __buffers, __offsets, __strides, __range, );
  }}
 var sel_setBufferOffset_attributeStride_atIndex_ = CachedSelector.init("setBufferOffset:attributeStride:atIndex:");
-      pub fn setBufferOffsetAttributeStrideAtIndex(self: *Self, __offset: c_ulong, __stride: c_ulong, __index: c_ulong, ) void {{
+      pub fn setOffsetOfBufferAttributeStrideAtIndex(self: *Self, __offset: c_ulong, __stride: c_ulong, __index: c_ulong, ) void {{
            return @as(*const fn(*Self, SEL, c_ulong, c_ulong, c_ulong, ) callconv(.C) void, @ptrCast(&objc_msgSend))(@ptrCast(self), sel_setBufferOffset_attributeStride_atIndex_.get(), __offset, __stride, __index, );
  }}
 var sel_setBytes_length_attributeStride_atIndex_ = CachedSelector.init("setBytes:length:attributeStride:atIndex:");
@@ -2785,7 +2785,7 @@ var sel_setVertexBuffer_offset_atIndex_ = CachedSelector.init("setVertexBuffer:o
            return @as(*const fn(*Self, SEL,  ?* MTLBuffer, c_ulong, c_ulong, ) callconv(.C) void, @ptrCast(&objc_msgSend))(@ptrCast(self), sel_setVertexBuffer_offset_atIndex_.get(), __buffer, __offset, __index, );
  }}
 var sel_setVertexBufferOffset_atIndex_ = CachedSelector.init("setVertexBufferOffset:atIndex:");
-      pub fn setVertexBufferOffsetAtIndex(self: *Self, __offset: c_ulong, __index: c_ulong, ) void {{
+      pub fn setOffsetOfVertexBufferAtIndex(self: *Self, __offset: c_ulong, __index: c_ulong, ) void {{
            return @as(*const fn(*Self, SEL, c_ulong, c_ulong, ) callconv(.C) void, @ptrCast(&objc_msgSend))(@ptrCast(self), sel_setVertexBufferOffset_atIndex_.get(), __offset, __index, );
  }}
 var sel_setVertexBuffers_offsets_withRange_ = CachedSelector.init("setVertexBuffers:offsets:withRange:");
@@ -2801,7 +2801,7 @@ var sel_setVertexBuffers_offsets_attributeStrides_withRange_ = CachedSelector.in
            return @as(*const fn(*Self, SEL, [*c] ?* MTLBuffer, [*c]c_ulong, [*c]c_ulong, _NSRange, ) callconv(.C) void, @ptrCast(&objc_msgSend))(@ptrCast(self), sel_setVertexBuffers_offsets_attributeStrides_withRange_.get(), __buffers, __offsets, __strides, __range, );
  }}
 var sel_setVertexBufferOffset_attributeStride_atIndex_ = CachedSelector.init("setVertexBufferOffset:attributeStride:atIndex:");
-      pub fn setVertexBufferOffsetAttributeStrideAtIndex(self: *Self, __offset: c_ulong, __stride: c_ulong, __index: c_ulong, ) void {{
+      pub fn setOffsetOfVertexBufferAttributeStrideAtIndex(self: *Self, __offset: c_ulong, __stride: c_ulong, __index: c_ulong, ) void {{
            return @as(*const fn(*Self, SEL, c_ulong, c_ulong, c_ulong, ) callconv(.C) void, @ptrCast(&objc_msgSend))(@ptrCast(self), sel_setVertexBufferOffset_attributeStride_atIndex_.get(), __offset, __stride, __index, );
  }}
 var sel_setVertexBytes_length_attributeStride_atIndex_ = CachedSelector.init("setVertexBytes:length:attributeStride:atIndex:");
@@ -2901,7 +2901,7 @@ var sel_setFragmentBuffer_offset_atIndex_ = CachedSelector.init("setFragmentBuff
            return @as(*const fn(*Self, SEL,  ?* MTLBuffer, c_ulong, c_ulong, ) callconv(.C) void, @ptrCast(&objc_msgSend))(@ptrCast(self), sel_setFragmentBuffer_offset_atIndex_.get(), __buffer, __offset, __index, );
  }}
 var sel_setFragmentBufferOffset_atIndex_ = CachedSelector.init("setFragmentBufferOffset:atIndex:");
-      pub fn setFragmentBufferOffsetAtIndex(self: *Self, __offset: c_ulong, __index: c_ulong, ) void {{
+      pub fn setOffsetOfFragmentBufferAtIndex(self: *Self, __offset: c_ulong, __index: c_ulong, ) void {{
            return @as(*const fn(*Self, SEL, c_ulong, c_ulong, ) callconv(.C) void, @ptrCast(&objc_msgSend))(@ptrCast(self), sel_setFragmentBufferOffset_atIndex_.get(), __offset, __index, );
  }}
 var sel_setFragmentBuffers_offsets_withRange_ = CachedSelector.init("setFragmentBuffers:offsets:withRange:");
@@ -3005,7 +3005,7 @@ var sel_setObjectBuffer_offset_atIndex_ = CachedSelector.init("setObjectBuffer:o
            return @as(*const fn(*Self, SEL,  ?* MTLBuffer, c_ulong, c_ulong, ) callconv(.C) void, @ptrCast(&objc_msgSend))(@ptrCast(self), sel_setObjectBuffer_offset_atIndex_.get(), __buffer, __offset, __index, );
  }}
 var sel_setObjectBufferOffset_atIndex_ = CachedSelector.init("setObjectBufferOffset:atIndex:");
-      pub fn setObjectBufferOffsetAtIndex(self: *Self, __offset: c_ulong, __index: c_ulong, ) void {{
+      pub fn setOffsetOfObjectBufferAtIndex(self: *Self, __offset: c_ulong, __index: c_ulong, ) void {{
            return @as(*const fn(*Self, SEL, c_ulong, c_ulong, ) callconv(.C) void, @ptrCast(&objc_msgSend))(@ptrCast(self), sel_setObjectBufferOffset_atIndex_.get(), __offset, __index, );
  }}
 var sel_setObjectBuffers_offsets_withRange_ = CachedSelector.init("setObjectBuffers:offsets:withRange:");
@@ -3049,7 +3049,7 @@ var sel_setMeshBuffer_offset_atIndex_ = CachedSelector.init("setMeshBuffer:offse
            return @as(*const fn(*Self, SEL,  ?* MTLBuffer, c_ulong, c_ulong, ) callconv(.C) void, @ptrCast(&objc_msgSend))(@ptrCast(self), sel_setMeshBuffer_offset_atIndex_.get(), __buffer, __offset, __index, );
  }}
 var sel_setMeshBufferOffset_atIndex_ = CachedSelector.init("setMeshBufferOffset:atIndex:");
-      pub fn setMeshBufferOffsetAtIndex(self: *Self, __offset: c_ulong, __index: c_ulong, ) void {{
+      pub fn setOffsetOfMeshBufferAtIndex(self: *Self, __offset: c_ulong, __index: c_ulong, ) void {{
            return @as(*const fn(*Self, SEL, c_ulong, c_ulong, ) callconv(.C) void, @ptrCast(&objc_msgSend))(@ptrCast(self), sel_setMeshBufferOffset_atIndex_.get(), __offset, __index, );
  }}
 var sel_setMeshBuffers_offsets_withRange_ = CachedSelector.init("setMeshBuffers:offsets:withRange:");
@@ -3169,7 +3169,7 @@ var sel_setTileBuffer_offset_atIndex_ = CachedSelector.init("setTileBuffer:offse
            return @as(*const fn(*Self, SEL,  ?* MTLBuffer, c_ulong, c_ulong, ) callconv(.C) void, @ptrCast(&objc_msgSend))(@ptrCast(self), sel_setTileBuffer_offset_atIndex_.get(), __buffer, __offset, __index, );
  }}
 var sel_setTileBufferOffset_atIndex_ = CachedSelector.init("setTileBufferOffset:atIndex:");
-      pub fn setTileBufferOffsetAtIndex(self: *Self, __offset: c_ulong, __index: c_ulong, ) void {{
+      pub fn setOffsetOfTileBufferAtIndex(self: *Self, __offset: c_ulong, __index: c_ulong, ) void {{
            return @as(*const fn(*Self, SEL, c_ulong, c_ulong, ) callconv(.C) void, @ptrCast(&objc_msgSend))(@ptrCast(self), sel_setTileBufferOffset_atIndex_.get(), __offset, __index, );
  }}
 var sel_setTileBuffers_offsets_withRange_ = CachedSelector.init("setTileBuffers:offsets:withRange:");

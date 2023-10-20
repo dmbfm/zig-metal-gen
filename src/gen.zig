@@ -17,6 +17,14 @@ const method_rename_map = std.ComptimeStringMap([]const u8, .{
     .{ "suspend", "_suspend" },
     .{ "opaque", "_opaque" },
     .{ "null", "_null" },
+    .{ "setBufferOffset:atIndex:", "setOffsetOfBuffer:atIndex:" },
+    .{ "setVertexBufferOffset:atIndex:", "setOffsetOfVertexBuffer:atIndex:" },
+    .{ "setFragmentBufferOffset:atIndex:", "setOffsetOfFragmentBuffer:atIndex:" },
+    .{ "setMeshBufferOffset:atIndex:", "setOffsetOfMeshBuffer:atIndex:" },
+    .{ "setTileBufferOffset:atIndex:", "setOffsetOfTileBuffer:atIndex:" },
+    .{ "setObjectBufferOffset:atIndex:", "setOffsetOfObjectBuffer:atIndex:" },
+    .{ "setBufferOffset:attributeStride:atIndex:", "setOffsetOfBuffer:attributeStride:atIndex:" },
+    .{ "setVertexBufferOffset:attributeStride:atIndex:", "setOffsetOfVertexBuffer:attributeStride:atIndex:" },
 });
 
 const param_rename_map = std.ComptimeStringMap([]const u8, .{
