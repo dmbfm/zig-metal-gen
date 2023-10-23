@@ -63,6 +63,10 @@ const record_field_rename_map = std.ComptimeStringMap([]const u8, .{
     .{ "align", "alignment" },
 });
 
+const enums_to_be_replaced_with_integer_types = std.ComptimeStringMap(void, .{
+    .{"MTLTextureUsage"},
+});
+
 const mixin_only_containers = std.ComptimeStringMap(void, .{.{"NSObject"}});
 
 pub const Generator = struct {
@@ -219,7 +223,16 @@ pub const Generator = struct {
                 std.debug.panic("INVALID", .{});
             },
             .enumeration => |name| {
+                //var name_slice = sliceFromCString(name);
+                //if (enums_to_be_replaced_with_integer_types.has(name_slice[5..])) {
+                //    if (self.r.enums.get(name_slice)) |e| {
+                //        try self.writeZigType(e.type, w);
+                //    } else {
+                //        std.debug.panic("Enum not found: {s}", .{name_slice});
+                //    }
+                //} else {
                 try w.print("{s}", .{sliceFromCString(name)[5..]});
+                //}
             },
             .block_pointer => |_| {
                 try w.writeAll("?*u8");
@@ -376,43 +389,6 @@ pub const Generator = struct {
             var protocol_it = self.r.protocols.iterator();
             while (protocol_it.next()) |entry| {
                 try writeContainer(entry.value_ptr, pw, .protocol);
-                // var protocol = entry.value_ptr;
-                // try pw.print("pub fn {s}ProtocolMixin(comptime Self: type, comptime class_name: [*:0]const u8) type {{\n", .{protocol.name});
-                // try pw.print("  return struct {{\n", .{});
-                // try pw.print("      var class = CachedClass.init(class_name);\n", .{});
-                //
-                // for (protocol.methods.items) |method| {
-                //     try writeSelVarName(method, pw);
-                //     try pw.print("      pub fn ", .{});
-                //     try writeMethodZigFunctionName(method, pw);
-                //     try pw.writeByte('(');
-                //
-                //     if (method.is_instance) {
-                //         try pw.writeAll("self: *Self, ");
-                //     }
-                //
-                //     try pw.writeAll(") ");
-                //
-                //     try writeZigType(method.return_type, pw);
-                //     try pw.writeAll(" {{}}\n");
-                // }
-                //
-                // try pw.print("  }};", .{});
-                // try pw.print("}}\n\n", .{});
-                //
-                // try pw.print("pub const {s} = opaque {{\n", .{protocol.name});
-                // try pw.print("  const Self = @This();\n", .{});
-                // try pw.print("  pub usingnamespace {s}ProtocolMixin(Self, \"{s}\");\n", .{ protocol.name, protocol.name });
-                //
-                // for (0..protocol.num_protocols) |i| {
-                //     try pw.print("  pub usingnamespace {s}ProtocolMixin(Self, \"{s}\");\n", .{ protocol.protocols[i], protocol.name });
-                // }
-                //
-                // if (protocol.super_class) |super_class_name| {
-                //     try pw.print("  pub usingnamespace {s}InterfaceMixin(Self, \"{s}\");\n", .{ super_class_name, protocol.name });
-                // }
-                //
-                // try pw.print("}};\n\n", .{});
             }
         }
         {
@@ -430,6 +406,28 @@ pub const Generator = struct {
             var enum_it = self.r.enums.iterator();
             while (enum_it.next()) |entry| {
                 var e = entry.value_ptr;
+
+                var name_slice = sliceFromCString(e.name)[5..];
+                if (enums_to_be_replaced_with_integer_types.has(name_slice)) {
+                    try ew.print("pub const {s} = ", .{name_slice});
+                    try writeZigType(e.type, ew);
+                    try ew.writeAll(";\n\n");
+
+                    for (e.values.items) |value| {
+                        try ew.print("pub const {s}: ", .{value.name});
+
+                        try writeZigType(e.type, ew);
+
+                        try ew.writeAll(" = ");
+
+                        if (e.type.isUnsigned()) {
+                            try ew.print(" {} ;\n", .{value.value});
+                        } else {
+                            try ew.print(" {} ;\n", .{value.ivalue});
+                        }
+                    }
+                    continue;
+                }
 
                 try ew.print("pub const {s} = enum(", .{sliceFromCString(e.name)[5..]});
                 try writeZigType(e.type, ew);
