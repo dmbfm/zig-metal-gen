@@ -144,13 +144,13 @@ pub const Type = union(enum) {
     }
 
     pub fn createPrimitive(allocator: Allocator, kind: PrimitiveKind, is_const: bool) *Type {
-        var t = allocFailType(allocator);
+        const t = allocFailType(allocator);
         t.* = .{ .primitive = .{ .kind = kind, .is_const = is_const } };
         return t;
     }
 
     pub fn createArray(allocator: Allocator, element_type: *Type, incomplete: bool, size: usize) *Type {
-        var t = allocFailType(allocator);
+        const t = allocFailType(allocator);
         t.* = .{ .array = Array{
             .element_type = element_type,
             .incomplete = incomplete,
@@ -160,67 +160,67 @@ pub const Type = union(enum) {
     }
 
     pub fn createPointer(allocator: Allocator, pointee: *Type, nullability: Pointer.Nullability) *Type {
-        var t = allocFailType(allocator);
+        const t = allocFailType(allocator);
         t.* = .{ .pointer = Pointer{ .pointee = pointee, .nullability = nullability } };
         return t;
     }
 
     pub fn createInterface(allocator: Allocator, name: c_string) *Type {
-        var t = allocFailType(allocator);
+        const t = allocFailType(allocator);
         t.* = .{ .interface = name };
         return t;
     }
 
     pub fn createClass(allocator: Allocator, name: c_string) *Type {
-        var t = allocFailType(allocator);
+        const t = allocFailType(allocator);
         t.* = .{ .class = name };
         return t;
     }
 
     pub fn createSel(allocator: Allocator) *Type {
-        var t = allocFailType(allocator);
+        const t = allocFailType(allocator);
         t.* = .sel;
         return t;
     }
 
     pub fn createId(allocator: Allocator) *Type {
-        var t = allocFailType(allocator);
+        const t = allocFailType(allocator);
         t.* = .{ .id = null };
         return t;
     }
 
     pub fn createIdProtocol(allocator: Allocator, protocol_name: c_string) *Type {
-        var t = allocFailType(allocator);
+        const t = allocFailType(allocator);
         t.* = .{ .id = protocol_name };
         return t;
     }
 
     pub fn createTypeParam(allocator: Allocator, name: c_string) *Type {
-        var t = allocFailType(allocator);
+        const t = allocFailType(allocator);
         t.* = .{ .type_param = name };
         return t;
     }
 
     pub fn createEnumeration(allocator: Allocator, name: c_string) *Type {
-        var t = allocFailType(allocator);
+        const t = allocFailType(allocator);
         t.* = .{ .enumeration = name };
         return t;
     }
 
     pub fn createRecord(allocator: Allocator, name: c_string) *Type {
-        var t = allocFailType(allocator);
+        const t = allocFailType(allocator);
         t.* = .{ .record = name };
         return t;
     }
 
     pub fn createInstancetype(allocator: Allocator) *Type {
-        var t = allocFailType(allocator);
+        const t = allocFailType(allocator);
         t.* = .instancetype;
         return t;
     }
 
     pub fn createBlockPointer(allocator: Allocator, function_proto: FunctionProto) *Type {
-        var t = allocFailType(allocator);
+        const t = allocFailType(allocator);
         t.* = .{ .block_pointer = function_proto };
         return t;
     }
@@ -282,7 +282,7 @@ pub const Type = union(enum) {
     pub fn print(self: *Type, w: anytype) !void {
         switch (self.*) {
             .primitive => |primitive| {
-                var name: []const u8 = switch (primitive.kind) {
+                const name: []const u8 = switch (primitive.kind) {
                     .Void => "void",
                     .Bool => "bool",
                     .UChar => "uchar",
@@ -387,38 +387,38 @@ test {
 
     // try common.write_spaces(1, std.io.getStdErr().writer());
 
-    var t = Type.createPrimitive(arena.allocator(), .Int);
+    const t = Type.createPrimitive(arena.allocator(), .Int);
     // try t.print(0, std.io.getStdErr().writer());
 
-    var arr = Type.createArray(arena.allocator(), t, false, 10);
+    const arr = Type.createArray(arena.allocator(), t, false, 10);
     _ = arr;
     // try arr.print(1, std.io.getStdErr().writer());
 
-    var ptr = Type.createPointer(arena.allocator(), t, .nullable);
+    const ptr = Type.createPointer(arena.allocator(), t, .nullable);
     _ = ptr;
 
-    var obj_id_prot = Type.createObjCIdProtocolObject(arena.allocator(), "MTLDevice");
+    const obj_id_prot = Type.createObjCIdProtocolObject(arena.allocator(), "MTLDevice");
     _ = obj_id_prot;
 
-    var obj_interface = Type.createObjCInterfaceObject(arena.allocator(), &[_]*Type{
+    const obj_interface = Type.createObjCInterfaceObject(arena.allocator(), &[_]*Type{
         Type.createTypeParam(arena.allocator(), "ObjecType"),
         Type.createInterface(arena.allocator(), "NSString"),
     });
 
     try std.testing.expectEqual(obj_interface.object.interface.num_type_args, 2);
 
-    var class = Type.createClass(arena.allocator(), "Class");
+    const class = Type.createClass(arena.allocator(), "Class");
     _ = class;
 
-    var sel = Type.createSel(arena.allocator());
+    const sel = Type.createSel(arena.allocator());
     _ = sel;
 
-    var enumeration = Type.createEnumeration(arena.allocator(), "Enumeration");
+    const enumeration = Type.createEnumeration(arena.allocator(), "Enumeration");
     _ = enumeration;
 
-    var bp = Type.createBlockPointer(arena.allocator(), t, &[_]*Type{t});
+    const bp = Type.createBlockPointer(arena.allocator(), t, &[_]*Type{t});
     try std.testing.expectEqual(bp.block_pointer.num_parameters, 1);
 
-    var fp = Type.createFunctionProto(arena.allocator(), t, &[_]*Type{t});
+    const fp = Type.createFunctionProto(arena.allocator(), t, &[_]*Type{t});
     try std.testing.expectEqual(fp.function_proto.num_parameters, 1);
 }

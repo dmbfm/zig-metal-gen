@@ -19,15 +19,15 @@ const ResolveTypeContext = struct {
 };
 
 pub fn resolveType(allocator: std.mem.Allocator, r: *Registry, t: c.CXType) *Type {
-    var type_name_str = c.clang_getTypeSpelling(t);
-    var type_name = c.clang_getCString(type_name_str);
+    const type_name_str = c.clang_getTypeSpelling(t);
+    const type_name = c.clang_getCString(type_name_str);
     // defer c.clang_disposeString(type_name_str);
 
-    var kind_name_str = c.clang_getTypeKindSpelling(t.kind);
-    var kind_name = c.clang_getCString(kind_name_str);
+    const kind_name_str = c.clang_getTypeKindSpelling(t.kind);
+    const kind_name = c.clang_getCString(kind_name_str);
     // defer c.clang_disposeString(kind_name_str);
 
-    var is_const = c.clang_isConstQualifiedType(t) != 0;
+    const is_const = c.clang_isConstQualifiedType(t) != 0;
 
     switch (t.kind) {
         c.CXType_Void => {
@@ -96,19 +96,19 @@ pub fn resolveType(allocator: std.mem.Allocator, r: *Registry, t: c.CXType) *Typ
         },
 
         c.CXType_Unexposed => {
-            var mt = c.clang_Type_getModifiedType(t);
+            const mt = c.clang_Type_getModifiedType(t);
             return resolveType(allocator, r, mt);
         },
 
         c.CXType_IncompleteArray, c.CXType_ConstantArray => {
             var size = c.clang_getArraySize(t);
-            var et = c.clang_getArrayElementType(t);
+            const et = c.clang_getArrayElementType(t);
 
             if (size < 0) {
                 size = 0;
             }
 
-            var incomplete = t.kind == c.CXType_IncompleteArray;
+            const incomplete = t.kind == c.CXType_IncompleteArray;
 
             var arr = Type.createArray(allocator, resolveType(allocator, r, et), incomplete, @intCast(size));
             if (is_const) {
@@ -118,7 +118,7 @@ pub fn resolveType(allocator: std.mem.Allocator, r: *Registry, t: c.CXType) *Typ
         },
 
         c.CXType_Pointer, c.CXType_ObjCObjectPointer => {
-            var pt = c.clang_getPointeeType(t);
+            const pt = c.clang_getPointeeType(t);
             var result = Type.createPointer(allocator, resolveType(allocator, r, pt), .none);
             if (is_const) {
                 // @panic("???????");
@@ -135,14 +135,14 @@ pub fn resolveType(allocator: std.mem.Allocator, r: *Registry, t: c.CXType) *Typ
         c.CXType_ObjCObject => {
             // println("CXType_ObjCObject: {s}", .{type_name});
             // c.clang_Type_getc
-            var base_type = resolveType(allocator, r, c.clang_Type_getObjCObjectBaseType(t));
-            var num_protocols: usize = @intCast(c.clang_Type_getNumObjCProtocolRefs(t));
+            const base_type = resolveType(allocator, r, c.clang_Type_getObjCObjectBaseType(t));
+            const num_protocols: usize = @intCast(c.clang_Type_getNumObjCProtocolRefs(t));
 
             switch (base_type.*) {
                 .id => {
                     if (num_protocols == 1) {
-                        var tp = c.clang_Type_getObjCProtocolDecl(t, 0);
-                        var protocol_name = c.clang_getCString(c.clang_getCursorDisplayName(tp));
+                        const tp = c.clang_Type_getObjCProtocolDecl(t, 0);
+                        const protocol_name = c.clang_getCString(c.clang_getCursorDisplayName(tp));
                         return Type.createIdProtocol(allocator, protocol_name);
                     } else {
                         return base_type;
@@ -196,8 +196,8 @@ pub fn resolveType(allocator: std.mem.Allocator, r: *Registry, t: c.CXType) *Typ
         // },
 
         c.CXType_Attributed => {
-            var clang_nullability = c.clang_Type_getNullability(t);
-            var nullability: Type.Pointer.Nullability = switch (clang_nullability) {
+            const clang_nullability = c.clang_Type_getNullability(t);
+            const nullability: Type.Pointer.Nullability = switch (clang_nullability) {
                 c.CXTypeNullability_NonNull => .nonnull,
                 c.CXTypeNullability_Invalid => .none,
                 c.CXTypeNullability_Nullable => .nullable,
@@ -206,8 +206,8 @@ pub fn resolveType(allocator: std.mem.Allocator, r: *Registry, t: c.CXType) *Typ
                 else => .none,
             };
 
-            var at = c.clang_Type_getModifiedType(t);
-            var resolved_type = resolveType(allocator, r, at);
+            const at = c.clang_Type_getModifiedType(t);
+            const resolved_type = resolveType(allocator, r, at);
 
             switch (resolved_type.*) {
                 .pointer => |*pointer| {
@@ -220,8 +220,8 @@ pub fn resolveType(allocator: std.mem.Allocator, r: *Registry, t: c.CXType) *Typ
         },
 
         c.CXType_Enum => {
-            var cursor = c.clang_getTypeDeclaration(t);
-            var enum_type = resolveType(allocator, r, c.clang_getEnumDeclIntegerType(cursor));
+            const cursor = c.clang_getTypeDeclaration(t);
+            const enum_type = resolveType(allocator, r, c.clang_getEnumDeclIntegerType(cursor));
 
             if (!r.hasEnum(sliceFromCString(type_name))) {
                 var enumeration = Enum.init(allocator, type_name, enum_type);
@@ -240,8 +240,8 @@ pub fn resolveType(allocator: std.mem.Allocator, r: *Registry, t: c.CXType) *Typ
         },
 
         c.CXType_Elaborated => {
-            var cursor = c.clang_getTypeDeclaration(t);
-            var ct = c.clang_getCursorType(cursor);
+            const cursor = c.clang_getTypeDeclaration(t);
+            const ct = c.clang_getCursorType(cursor);
             return resolveType(allocator, r, ct);
         },
 
@@ -250,14 +250,14 @@ pub fn resolveType(allocator: std.mem.Allocator, r: *Registry, t: c.CXType) *Typ
                 return &Type._instancetype;
             }
 
-            var cursor = c.clang_getTypeDeclaration(t);
-            var ct = c.clang_getTypedefDeclUnderlyingType(cursor);
+            const cursor = c.clang_getTypeDeclaration(t);
+            const ct = c.clang_getTypedefDeclUnderlyingType(cursor);
             return resolveType(allocator, r, ct);
         },
 
         c.CXType_Record => {
-            var decl = c.clang_getTypeDeclaration(t);
-            var decl_name = c.clang_getCString(c.clang_getCursorDisplayName(decl));
+            const decl = c.clang_getTypeDeclaration(t);
+            const decl_name = c.clang_getCString(c.clang_getCursorDisplayName(decl));
 
             // std.log.info("RECORD: {s} ", .{decl_name});
 
@@ -280,10 +280,10 @@ pub fn resolveType(allocator: std.mem.Allocator, r: *Registry, t: c.CXType) *Typ
         },
 
         c.CXType_FunctionProto => {
-            var rt = c.clang_getResultType(t);
-            var result_type = resolveType(allocator, r, rt);
+            const rt = c.clang_getResultType(t);
+            const result_type = resolveType(allocator, r, rt);
 
-            var n: usize = @intCast(c.clang_getNumArgTypes(t));
+            const n: usize = @intCast(c.clang_getNumArgTypes(t));
 
             if (n > Type.max_func_params) {
                 std.debug.panic("[CXType_FunctionProto]: More than {} params!", .{Type.max_func_params});
@@ -292,7 +292,7 @@ pub fn resolveType(allocator: std.mem.Allocator, r: *Registry, t: c.CXType) *Typ
             var params: [Type.max_func_params]*Type = undefined;
 
             for (0..n) |i| {
-                var at = c.clang_getArgType(t, @intCast(i));
+                const at = c.clang_getArgType(t, @intCast(i));
                 params[i] = resolveType(allocator, r, at);
             }
 
@@ -305,8 +305,8 @@ pub fn resolveType(allocator: std.mem.Allocator, r: *Registry, t: c.CXType) *Typ
         },
 
         c.CXType_BlockPointer => {
-            var pt = c.clang_getPointeeType(t);
-            var fproto_type = resolveType(allocator, r, pt);
+            const pt = c.clang_getPointeeType(t);
+            const fproto_type = resolveType(allocator, r, pt);
             return Type.createBlockPointer(allocator, fproto_type.function_proto);
         },
 
@@ -324,7 +324,7 @@ fn record_visitor(cursor: c.CXCursor, _: c.CXCursor, data: c.CXClientData) callc
 
     switch (cursor.kind) {
         c.CXCursor_FieldDecl => {
-            var t = c.clang_getCursorType(cursor);
+            const t = c.clang_getCursorType(cursor);
             ctx.record.?.addField(.{
                 .name = c.clang_getCString(c.clang_getCursorDisplayName(cursor)),
                 .type = resolveType(ctx.allocator, ctx.registry.?, t),
@@ -341,9 +341,9 @@ fn enum_visitor(cursor: c.CXCursor, _: c.CXCursor, data: c.CXClientData) callcon
 
     switch (cursor.kind) {
         c.CXCursor_EnumConstantDecl => {
-            var name = c.clang_getCString(c.clang_getCursorDisplayName(cursor));
-            var ivalue = c.clang_getEnumConstantDeclValue(cursor);
-            var value = c.clang_getEnumConstantDeclUnsignedValue(cursor);
+            const name = c.clang_getCString(c.clang_getCursorDisplayName(cursor));
+            const ivalue = c.clang_getEnumConstantDeclValue(cursor);
+            const value = c.clang_getEnumConstantDeclUnsignedValue(cursor);
 
             ctx.enumeration.?.addValue(.{
                 .name = name,

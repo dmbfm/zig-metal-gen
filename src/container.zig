@@ -39,7 +39,7 @@ pub const Container = struct {
         }
 
         pub fn write(self: Method, writer: anytype) !void {
-            var s = if (self.is_instance) "-" else "+";
+            const s = if (self.is_instance) "-" else "+";
             try writer.print("{s} {s}", .{ s, self.name });
             try self.return_type.print(writer);
         }
@@ -139,6 +139,6 @@ test {
     var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
     defer arena.deinit();
 
-    var c = Container.init(arena.allocator(), "MyProtocol");
+    const c = Container.init(arena.allocator(), "MyProtocol");
     _ = c;
 }

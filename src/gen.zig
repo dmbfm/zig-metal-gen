@@ -96,7 +96,7 @@ pub const Generator = struct {
     }
 
     pub fn writeMethodZigFunctionName(m: Container.Method, w: anytype) !void {
-        var name: []const u8 = if (method_rename_map.get(sliceFromCString(m.name))) |str| str else sliceFromCString(m.name);
+        const name: []const u8 = if (method_rename_map.get(sliceFromCString(m.name))) |str| str else sliceFromCString(m.name);
 
         var nextIsUpperCase = false;
         for (name) |ch| {
@@ -127,7 +127,7 @@ pub const Generator = struct {
     pub fn writeZigType(t: *Type, w: anytype) !void {
         switch (t.*) {
             .primitive => |primitive| {
-                var name: []const u8 = switch (primitive.kind) {
+                const name: []const u8 = switch (primitive.kind) {
                     .Void => "void",
                     .Bool => "bool",
                     .UChar => "u8",
@@ -265,7 +265,7 @@ pub const Generator = struct {
     };
 
     fn paramName(original: [*:0]const u8) []const u8 {
-        var str = sliceFromCString(original);
+        const str = sliceFromCString(original);
         if (param_rename_map.has(str)) {
             return param_rename_map.get(str).?;
         } else {
@@ -304,7 +304,7 @@ pub const Generator = struct {
             try writeZigType(method.return_type, w);
             try w.writeAll(" {{\n");
 
-            var idtag: []const u8 = if (method.is_instance) "*Self" else "Class";
+            const idtag: []const u8 = if (method.is_instance) "*Self" else "Class";
 
             // try w.print("           return @as(*const fn({s}, SEL, ) , @ptrCast())();", .{idtag});
             try w.print("           return @as(*const fn({s}, SEL, ", .{idtag});
@@ -357,7 +357,7 @@ pub const Generator = struct {
     }
 
     pub fn recordFieldName(original: [*:0]const u8) []const u8 {
-        var slice = sliceFromCString(original);
+        const slice = sliceFromCString(original);
 
         if (record_field_rename_map.get(slice)) |name| {
             return name;
@@ -379,8 +379,8 @@ pub const Generator = struct {
         var rs = std.io.fixedBufferStream(rb[0..]);
         var fs = std.io.fixedBufferStream(fb[0..]);
 
-        var iw = is.writer();
-        var pw = ps.writer();
+        const iw = is.writer();
+        const pw = ps.writer();
         var ew = es.writer();
         var rw = rs.writer();
         var fw = fs.writer();
@@ -407,7 +407,7 @@ pub const Generator = struct {
             while (enum_it.next()) |entry| {
                 var e = entry.value_ptr;
 
-                var name_slice = sliceFromCString(e.name)[5..];
+                const name_slice = sliceFromCString(e.name)[5..];
                 if (enums_to_be_replaced_with_integer_types.has(name_slice)) {
                     try ew.print("pub const {s} = ", .{name_slice});
                     try writeZigType(e.type, ew);
@@ -448,7 +448,7 @@ pub const Generator = struct {
             var it = self.r.records.iterator();
 
             while (it.next()) |entry| {
-                var rec = entry.value_ptr;
+                const rec = entry.value_ptr;
 
                 if (records_force_opaque.has(sliceFromCString(rec.name))) {
                     try rw.print("pub const {s} = opaque {{}};\n\n", .{rec.name});
@@ -470,7 +470,7 @@ pub const Generator = struct {
             var it = self.r.functions.iterator();
 
             while (it.next()) |entry| {
-                var func = entry.value_ptr;
+                const func = entry.value_ptr;
 
                 if (blacklisted_functions.has(funcName(sliceFromCString(func.name)))) {
                     continue;
@@ -481,7 +481,7 @@ pub const Generator = struct {
                 try fw.writeAll("( ");
 
                 for (func.params.items) |param| {
-                    var name = paramName(param.name);
+                    const name = paramName(param.name);
                     try fw.print("{s}: ", .{name});
                     try writeZigType(param.type, fw);
                     try fw.writeAll(", ");

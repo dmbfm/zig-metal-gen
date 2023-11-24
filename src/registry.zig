@@ -84,7 +84,7 @@ pub const Registry = struct {
     }
 
     pub fn addInterface(self: *Self, interface: Container) void {
-        var slice = sliceFromCString(interface.name);
+        const slice = sliceFromCString(interface.name);
 
         if (self.interfaces.get(slice) == null) {
             self.interfaces.put(slice, interface) catch {
@@ -156,14 +156,14 @@ pub const Registry = struct {
     }
 
     pub fn build(self: *Self, path: c_string) void {
-        var index = c.clang_createIndex(0, 0);
+        const index = c.clang_createIndex(0, 0);
 
         self.tu = c.clang_parseTranslationUnit(index, path, null, 0, null, 0, c.CXTranslationUnit_IncludeAttributedTypes);
         //self.tu = c.clang_parseTranslationUnit(index, path, &[_][*:0]const u8{"-objcmt-migrate-instancetype"}, 1, null, 0, c.CXTranslationUnit_IncludeAttributedTypes);
         // self.tu = c.clang_parseTranslationUnit(index, path, &[_][*:0]const u8{ "-arch", "arm64", "-isysroot", "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS17.0.sdk" }, 4, null, 0, c.CXTranslationUnit_IncludeAttributedTypes);
         // self.tu = c.clang_parseTranslationUnit(index, path, &[_][*:0]const u8{ "-isysroot", "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS17.0.sdk" }, 2, null, 0, c.CXTranslationUnit_IncludeAttributedTypes);
         // _ = tu;
-        var cursor = c.clang_getTranslationUnitCursor(self.tu);
+        const cursor = c.clang_getTranslationUnitCursor(self.tu);
         _ = c.clang_visitChildren(cursor, &main_visitor, @ptrCast(self));
     }
 
@@ -171,7 +171,7 @@ pub const Registry = struct {
         std.debug.assert(cursor.kind == c.CXCursor_ObjCProtocolDecl);
         _ = parent;
 
-        var name = c.clang_getCString(c.clang_getCursorDisplayName(cursor));
+        const name = c.clang_getCString(c.clang_getCursorDisplayName(cursor));
 
         if (self.options.protocol_filter_fn) |filter_fn| {
             if (!filter_fn(sliceFromCString(name))) {
@@ -179,16 +179,16 @@ pub const Registry = struct {
             }
         }
 
-        var n = c.clang_Cursor_getNumTemplateArguments(cursor);
+        const n = c.clang_Cursor_getNumTemplateArguments(cursor);
         // c.clang_Type_getNumTemplateArguments(T: CXType)
-        var t = c.clang_getCursorType(cursor);
+        const t = c.clang_getCursorType(cursor);
         _ = t;
         // var n = c.clang_Type_getNumObjCTypeArgs(t);
         if (n > 0) {
             std.log.info("num = {}", .{n});
         }
 
-        var container = Container.init(self.allocator, name);
+        const container = Container.init(self.allocator, name);
         self.addProtocol(container);
 
         _ = c.clang_visitChildren(cursor, &container_visitor, @ptrCast(self));
@@ -198,8 +198,8 @@ pub const Registry = struct {
     }
 
     fn dumpCursorType(cursor: c.CXCursor) void {
-        var t = c.clang_getCursorType(cursor);
-        var rt = c.clang_getCursorResultType(cursor);
+        const t = c.clang_getCursorType(cursor);
+        const rt = c.clang_getCursorResultType(cursor);
 
         println("dump_type: {s}, {s}, {s}", .{
             c.clang_getCString(c.clang_getTypeSpelling(t)),
@@ -217,7 +217,7 @@ pub const Registry = struct {
         var name = c.clang_getCString(c.clang_getCursorDisplayName(cursor));
 
         if (cursor.kind == c.CXCursor_ObjCCategoryDecl) {
-            var ex = c.clang_getCursorExtent(cursor);
+            const ex = c.clang_getCursorExtent(cursor);
 
             var toks: [*c]c.CXToken = undefined;
             var num_toks: c_uint = 0;
@@ -227,7 +227,7 @@ pub const Registry = struct {
                 std.debug.panic("Expected > 3 tokens for a category declaration!", .{});
             }
 
-            var tok = toks[2];
+            const tok = toks[2];
             // var base_interface_name = c.clang_getCString(c.clang_getTokenSpelling(self.tu, tok));
             name = c.clang_getCString(c.clang_getTokenSpelling(self.tu, tok));
 
@@ -241,7 +241,7 @@ pub const Registry = struct {
             }
         }
 
-        var container = Container.init(self.allocator, name);
+        const container = Container.init(self.allocator, name);
         self.addInterface(container);
 
         _ = c.clang_visitChildren(cursor, &container_visitor, @ptrCast(self));
@@ -261,7 +261,7 @@ pub const Registry = struct {
         std.debug.assert(cursor.kind == c.CXCursor_FunctionDecl);
         _ = parent;
 
-        var name = c.clang_getCString(c.clang_getCursorDisplayName(cursor));
+        const name = c.clang_getCString(c.clang_getCursorDisplayName(cursor));
         // std.log.info("fname = {s}", .{name});
 
         if (self.options.function_filter_fn) |filter_fn| {
@@ -272,16 +272,16 @@ pub const Registry = struct {
 
         // c.clang_name
 
-        var rt = c.clang_getCursorResultType(cursor);
-        var result_type = resolveType(self.allocator, self, rt);
+        const rt = c.clang_getCursorResultType(cursor);
+        const result_type = resolveType(self.allocator, self, rt);
         var f = Function.init(self.allocator, name, result_type);
 
-        var n: usize = @intCast(c.clang_Cursor_getNumArguments(cursor));
+        const n: usize = @intCast(c.clang_Cursor_getNumArguments(cursor));
         for (0..n) |i| {
-            var ag = c.clang_Cursor_getArgument(cursor, @intCast(i));
+            const ag = c.clang_Cursor_getArgument(cursor, @intCast(i));
             // std.log.info("pname = {s}", .{c.clang_getCString(c.clang_getCursorDisplayName(ag))});
-            var agt = c.clang_getCursorType(ag);
-            var arg_type = resolveType(self.allocator, self, agt);
+            const agt = c.clang_getCursorType(ag);
+            const arg_type = resolveType(self.allocator, self, agt);
             f.addParam(.{
                 .name = c.clang_getCString(c.clang_getCursorDisplayName(ag)),
                 .type = arg_type,
@@ -297,18 +297,18 @@ pub const Registry = struct {
         std.debug.assert(cursor.kind == c.CXCursor_ObjCClassMethodDecl or cursor.kind == c.CXCursor_ObjCInstanceMethodDecl);
         _ = parent;
 
-        var name = c.clang_getCString(c.clang_getCursorDisplayName(cursor));
+        const name = c.clang_getCString(c.clang_getCursorDisplayName(cursor));
 
         // c.clang_result
-        var cursor_return_type = c.clang_getCursorResultType(cursor);
-        var return_type = resolveType(self.allocator, self, cursor_return_type);
+        const cursor_return_type = c.clang_getCursorResultType(cursor);
+        const return_type = resolveType(self.allocator, self, cursor_return_type);
         var method = Container.Method.init(self.allocator, name, !isClass, return_type);
 
-        var n: usize = @intCast(c.clang_Cursor_getNumArguments(cursor));
+        const n: usize = @intCast(c.clang_Cursor_getNumArguments(cursor));
         for (0..n) |i| {
-            var argument_cursor = c.clang_Cursor_getArgument(cursor, @intCast(i));
-            var argument_name = c.clang_getCString(c.clang_getCursorDisplayName(argument_cursor));
-            var argument_type = resolveType(self.allocator, self, c.clang_getCursorType(argument_cursor));
+            const argument_cursor = c.clang_Cursor_getArgument(cursor, @intCast(i));
+            const argument_name = c.clang_getCString(c.clang_getCursorDisplayName(argument_cursor));
+            const argument_type = resolveType(self.allocator, self, c.clang_getCursorType(argument_cursor));
             method.addParam(.{
                 .name = argument_name,
                 .type = argument_type,
@@ -324,7 +324,7 @@ pub const Registry = struct {
         std.debug.assert(cursor.kind == c.CXCursor_ObjCSuperClassRef);
         _ = parent;
 
-        var name = c.clang_getCString(c.clang_getCursorDisplayName(cursor));
+        const name = c.clang_getCString(c.clang_getCursorDisplayName(cursor));
         self.setSuperClass(name);
 
         return c.CXChildVisit_Continue;
@@ -334,7 +334,7 @@ pub const Registry = struct {
         std.debug.assert(cursor.kind == c.CXCursor_ObjCProtocolRef);
         _ = parent;
 
-        var name = c.clang_getCString(c.clang_getCursorDisplayName(cursor));
+        const name = c.clang_getCString(c.clang_getCursorDisplayName(cursor));
 
         if (std.mem.eql(u8, sliceFromCString(name), "entry.m")) {
             return c.CXChildVisit_Continue;
@@ -398,7 +398,7 @@ pub const Registry = struct {
             println("PROTOCOLS:", .{});
             var it = self.protocols.iterator();
             while (it.next()) |e| {
-                var p = e.value_ptr;
+                const p = e.value_ptr;
                 println("   Protocol: '{s}'", .{p.name});
                 if (p.super_class) |super_class_name| {
                     println("       SUPER: {s}", .{super_class_name});
@@ -427,7 +427,7 @@ pub const Registry = struct {
             println("INTERFACES:", .{});
             var it = self.interfaces.iterator();
             while (it.next()) |e| {
-                var p = e.value_ptr;
+                const p = e.value_ptr;
                 println("   Interface: '{s}'", .{p.name});
                 if (p.super_class) |super_class_name| {
                     println("       SUPER: {s}", .{super_class_name});
@@ -464,7 +464,7 @@ pub const Registry = struct {
             println("RECORDS:", .{});
             var it = self.records.iterator();
             while (it.next()) |e| {
-                var rec = e.value_ptr;
+                const rec = e.value_ptr;
                 println("   Record: '{s}'", .{rec.name});
 
                 for (rec.fields.items) |field| {
